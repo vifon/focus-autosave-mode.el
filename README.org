@@ -1,0 +1,8 @@
+* focus-autosave-mode
+  A global minor mode saving all the modified files when the
+  Emacs frame loses its focus.
+
+  /This is my first Emacs package. Any feedback and/or advices from
+  more experienced emacsers will be very appreciated./
+** Dependencies
+   - Emacs 24.4+
