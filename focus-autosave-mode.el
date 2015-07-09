@@ -4,6 +4,7 @@
 
 ;; Author: Wojciech Siewierski <wojciech.siewierski@onet.pl>
 ;; Keywords: convenience, files, frames, mouse
+;; Package-Requires: ((emacs "24.4"))
 
 ;; This file is not part of GNU Emacs.
 
