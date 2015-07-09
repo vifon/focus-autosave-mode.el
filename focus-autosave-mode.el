@@ -26,6 +26,8 @@
 ;; `focus-autosave-mode' is a global minor mode saving every modified
 ;; file when the Emacs frame loses its focus.
 
+;; `focus-autosave-local-mode' is a buffer-local version of this mode.
+
 ;;; Code:
 
 ;;;###autoload
@@ -39,8 +41,43 @@
         (add-hook hook hook-function)
         (remove-hook hook hook-function))))
 
+;;;###autoload
+(define-minor-mode focus-autosave-local-mode
+  "Automatically save this buffer when the frame loses its focus."
+  :lighter " local-focus-save"
+  :global nil
+  (if focus-autosave-local-mode
+      (progn
+        (add-to-list 'focus-autosave-buffer-list (current-buffer))
+        (add-hook 'focus-out-hook #'focus-autosave-save-marked))
+      (progn
+        (setq focus-autosave-buffer-list
+              (delete (current-buffer)
+                      focus-autosave-buffer-list))
+        (focus-autosave-cleanup-hook))))
+
+(defvar focus-autosave-buffer-list nil
+  "A list of buffers to be saved on focus-out.")
+
+(defun focus-autosave-cleanup-hook ()
+  "Remove the focus-out-hook if the autosaved buffer list is empty."
+  (unless focus-autosave-buffer-list
+    (remove-hook 'focus-out-hook #'focus-autosave-save-marked)))
+
 (defun focus-autosave-save-all ()
+  "Save all buffers."
   (save-some-buffers t))
+
+(defun focus-autosave-save-marked ()
+  "Save the marked buffers and remove the killed ones from the list."
+  (setq focus-autosave-buffer-list
+        (delete-if-not #'buffer-live-p
+                       focus-autosave-buffer-list))
+  (mapcar (lambda (buffer)
+            (with-current-buffer buffer
+              (save-buffer)))
+          focus-autosave-buffer-list)
+  (focus-autosave-cleanup-hook))
 
 (provide 'focus-autosave-mode)
 ;;; focus-autosave-mode.el ends here
