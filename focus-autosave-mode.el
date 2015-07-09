@@ -21,6 +21,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; `focus-autosave-mode' is a global minor mode saving every modified
+;; file when the Emacs frame loses its focus.
+
 ;;; Code:
 
 ;;;###autoload
