@@ -28,6 +28,8 @@
 
 ;; `focus-autosave-local-mode' is a buffer-local version of this mode.
 
+;; Currently there is no way to exclude some buffers from the global version.
+
 ;;; Code:
 
 ;;;###autoload
