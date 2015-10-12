@@ -32,6 +32,11 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
+(defvar focus-autosave-buffer-list nil
+  "A list of buffers to be saved on focus-out.")
+
 ;;;###autoload
 (define-minor-mode focus-autosave-mode
   "Automatically save all the modified files when the frame loses its focus."
@@ -41,7 +46,7 @@
         (hook-function #'focus-autosave-save-all))
     (if focus-autosave-mode
         (add-hook hook hook-function)
-        (remove-hook hook hook-function))))
+      (remove-hook hook hook-function))))
 
 ;;;###autoload
 (define-minor-mode focus-autosave-local-mode
@@ -52,17 +57,14 @@
       (progn
         (add-to-list 'focus-autosave-buffer-list (current-buffer))
         (add-hook 'focus-out-hook #'focus-autosave-save-marked))
-      (progn
-        (setq focus-autosave-buffer-list
-              (delete (current-buffer)
-                      focus-autosave-buffer-list))
-        (focus-autosave-cleanup-hook))))
-
-(defvar focus-autosave-buffer-list nil
-  "A list of buffers to be saved on focus-out.")
+    (progn
+      (setq focus-autosave-buffer-list
+            (delete (current-buffer)
+                    focus-autosave-buffer-list))
+      (focus-autosave-cleanup-hook))))
 
 (defun focus-autosave-cleanup-hook ()
-  "Remove the focus-out-hook if the autosaved buffer list is empty."
+  "Remove the `focus-out-hook' if the autosaved buffer list is empty."
   (unless focus-autosave-buffer-list
     (remove-hook 'focus-out-hook #'focus-autosave-save-marked)))
 
@@ -73,12 +75,12 @@
 (defun focus-autosave-save-marked ()
   "Save the marked buffers and remove the killed ones from the list."
   (setq focus-autosave-buffer-list
-        (delete-if-not #'buffer-live-p
-                       focus-autosave-buffer-list))
-  (mapcar (lambda (buffer)
-            (with-current-buffer buffer
-              (save-buffer)))
-          focus-autosave-buffer-list)
+        (cl-delete-if-not #'buffer-live-p
+                          focus-autosave-buffer-list))
+  (mapc (lambda (buffer)
+          (with-current-buffer buffer
+            (save-buffer)))
+        focus-autosave-buffer-list)
   (focus-autosave-cleanup-hook))
 
 (provide 'focus-autosave-mode)
