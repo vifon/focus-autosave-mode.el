@@ -37,6 +37,12 @@
 (defvar focus-autosave-buffer-list nil
   "A list of buffers to be saved on focus-out.")
 
+(defcustom focus-autosave-local-action nil
+  "A shell command or Elisp function to run after saving the
+buffer. Do nothing if `nil'"
+  :risky t)
+(make-local-variable 'focus-autosave-local-action)
+
 ;;;###autoload
 (define-minor-mode focus-autosave-mode
   "Automatically save all the modified files when the frame loses its focus."
@@ -72,14 +78,22 @@
   "Save all buffers."
   (save-some-buffers t))
 
+(defun focus-autosave-buffer (buffer)
+  "Save a buffer and run its autosave command if present."
+  (with-current-buffer buffer
+    (save-buffer)
+    (cond
+     ((functionp focus-autosave-local-action)
+      (funcall focus-autosave-local-action))
+     ((stringp focus-autosave-local-action)
+      (async-shell-command focus-autosave-local-action)))))
+
 (defun focus-autosave-save-marked ()
   "Save the marked buffers and remove the killed ones from the list."
   (setq focus-autosave-buffer-list
         (cl-delete-if-not #'buffer-live-p
                           focus-autosave-buffer-list))
-  (mapc (lambda (buffer)
-          (with-current-buffer buffer
-            (save-buffer)))
+  (mapc #'focus-autosave-buffer
         focus-autosave-buffer-list)
   (focus-autosave-cleanup-hook))
 
