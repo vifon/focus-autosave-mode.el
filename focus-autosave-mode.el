@@ -76,18 +76,17 @@ buffer. Do nothing if `nil'"
 
 (defun focus-autosave-save-all ()
   "Save all buffers."
-  (dolist (buffer (buffer-list))
-    (when (and (buffer-live-p buffer)
-               (buffer-modified-p buffer)
-               (buffer-file-name buffer))
-      (with-current-buffer buffer
-        (save-buffer)))))
+  (mapc #'focus-autosave-buffer
+        (buffer-list)))
+
+(defun focus-autosave-should-save-p (buffer)
+  (and (buffer-live-p buffer)
+       (buffer-modified-p buffer)
+       (buffer-file-name buffer)))
 
 (defun focus-autosave-buffer (buffer)
   "Save a buffer and run its autosave command if present."
-  (when (and (buffer-live-p buffer)
-             (buffer-modified-p buffer)
-             (buffer-file-name buffer))
+  (when (focus-autosave-should-save-p buffer)
     (with-current-buffer buffer
       (save-buffer)
       (cond
