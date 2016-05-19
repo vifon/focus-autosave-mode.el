@@ -85,13 +85,16 @@ buffer. Do nothing if `nil'"
 
 (defun focus-autosave-buffer (buffer)
   "Save a buffer and run its autosave command if present."
-  (with-current-buffer buffer
-    (save-buffer)
-    (cond
-     ((functionp focus-autosave-local-action)
-      (funcall focus-autosave-local-action))
-     ((stringp focus-autosave-local-action)
-      (async-shell-command focus-autosave-local-action)))))
+  (when (and (buffer-live-p buffer)
+             (buffer-modified-p buffer)
+             (buffer-file-name buffer))
+    (with-current-buffer buffer
+      (save-buffer)
+      (cond
+       ((functionp focus-autosave-local-action)
+        (funcall focus-autosave-local-action))
+       ((stringp focus-autosave-local-action)
+        (async-shell-command focus-autosave-local-action))))))
 
 (defun focus-autosave-save-marked ()
   "Save the marked buffers and remove the killed ones from the list."
