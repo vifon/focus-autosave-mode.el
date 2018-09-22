@@ -1,4 +1,4 @@
-* focus-autosave-mode
+* focus-autosave-mode [[http://melpa.milkbox.net/#/focus-autosave-mode][file:http://melpa.milkbox.net/packages/focus-autosave-mode-badge.svg]]
   A global minor mode saving all the modified files when the
   Emacs frame loses its focus.
 
